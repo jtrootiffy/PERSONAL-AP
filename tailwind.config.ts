@@ -89,6 +89,18 @@ const config: Config = {
           from: { opacity: "0", transform: "translateX(8px)" },
           to: { opacity: "1", transform: "translateX(0)" },
         },
+        "zoom-in": {
+          from: { opacity: "0", transform: "scale(0.96) translateY(4px)" },
+          to: { opacity: "1", transform: "scale(1) translateY(0)" },
+        },
+        "slide-in-left": {
+          from: { opacity: "0", transform: "translateX(-14px)" },
+          to: { opacity: "1", transform: "translateX(0)" },
+        },
+        "slide-in-down": {
+          from: { opacity: "0", transform: "translateY(-4px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
         shimmer: {
           "100%": { transform: "translateX(100%)" },
         },
@@ -98,6 +110,9 @@ const config: Config = {
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.25s ease-out",
         "slide-in": "slide-in 0.2s ease-out",
+        "zoom-in": "zoom-in 0.2s ease-out",
+        "slide-in-left": "slide-in-left 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+        "slide-in-down": "slide-in-down 0.16s ease-out",
         shimmer: "shimmer 1.6s infinite",
       },
     },

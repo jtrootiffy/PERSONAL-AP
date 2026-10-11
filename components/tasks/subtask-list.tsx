@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { Check, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,12 +18,19 @@ export function SubtaskList({
   taskId: string;
   subtasks: Subtask[];
 }) {
+  const router = useRouter();
   const toast = useToast();
   const [title, setTitle] = React.useState("");
   const [pending, setPending] = React.useState(false);
 
-  const done = subtasks.filter((s) => s.done).length;
-  const percent = subtasks.length === 0 ? 0 : Math.round((done / subtasks.length) * 100);
+  // Optimistic local copy so toggles and deletes respond on the first click
+  // instead of waiting for the server round-trip, then resync when fresh rows
+  // arrive from the server after router.refresh().
+  const [items, setItems] = React.useState<Subtask[]>(subtasks);
+  React.useEffect(() => setItems(subtasks), [subtasks]);
+
+  const done = items.filter((s) => s.done).length;
+  const percent = items.length === 0 ? 0 : Math.round((done / items.length) * 100);
 
   async function add(e: React.FormEvent) {
     e.preventDefault();
@@ -31,29 +39,56 @@ export function SubtaskList({
     setPending(true);
     const res = await addSubtask(taskId, value);
     setPending(false);
-    if (res.ok) setTitle("");
-    else toast.error("Could not add subtask", res.error);
+    if (res.ok) {
+      setTitle("");
+      router.refresh();
+    } else {
+      toast.error("Could not add subtask", res.error);
+    }
+  }
+
+  async function toggle(s: Subtask) {
+    const next = !s.done;
+    setItems((prev) => prev.map((x) => (x.id === s.id ? { ...x, done: next } : x)));
+    const res = await toggleSubtask(s.id, next);
+    if (res.ok) {
+      router.refresh();
+    } else {
+      setItems((prev) => prev.map((x) => (x.id === s.id ? { ...x, done: s.done } : x)));
+      toast.error("Could not update subtask", res.error);
+    }
+  }
+
+  async function remove(s: Subtask) {
+    setItems((prev) => prev.filter((x) => x.id !== s.id));
+    const res = await deleteSubtask(s.id);
+    if (res.ok) {
+      router.refresh();
+    } else {
+      setItems(subtasks);
+      toast.error("Could not delete subtask", res.error);
+    }
   }
 
   return (
     <div className="space-y-3">
-      {subtasks.length > 0 && (
+      {items.length > 0 && (
         <div className="flex items-center gap-3">
           <Progress value={percent} className="h-1.5" tone={percent === 100 ? "success" : "primary"} />
           <span className="shrink-0 text-xs text-muted-foreground">
-            {done}/{subtasks.length}
+            {done}/{items.length}
           </span>
         </div>
       )}
 
       <ul className="space-y-1">
-        {subtasks.map((s) => (
+        {items.map((s) => (
           <li key={s.id} className="group flex items-center gap-2 rounded-md px-1 py-1 hover:bg-muted/60">
             <button
               type="button"
-              onClick={() => toggleSubtask(s.id, !s.done)}
+              onClick={() => toggle(s)}
               className={cn(
-                "flex h-4 w-4 items-center justify-center rounded border transition-colors",
+                "flex h-5 w-5 items-center justify-center rounded border transition-colors motion-safe:active:scale-95",
                 s.done ? "border-primary bg-primary text-primary-foreground" : "border-input",
               )}
               aria-label={s.done ? "Mark incomplete" : "Mark complete"}
@@ -65,11 +100,11 @@ export function SubtaskList({
             </span>
             <button
               type="button"
-              onClick={() => deleteSubtask(s.id)}
-              className="opacity-0 transition-opacity group-hover:opacity-100"
+              onClick={() => remove(s)}
+              className="rounded-md p-1 text-muted-foreground opacity-100 transition-opacity hover:text-destructive sm:opacity-0 sm:group-hover:opacity-100"
               aria-label="Delete subtask"
             >
-              <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
+              <Trash2 className="h-4 w-4" />
             </button>
           </li>
         ))}

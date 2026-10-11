@@ -51,7 +51,7 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         className={cn(
-          "relative z-10 my-8 w-full max-w-lg animate-fade-in rounded-2xl border bg-card p-0 shadow-2xl",
+          "relative z-10 my-8 w-full max-w-lg animate-zoom-in rounded-2xl border bg-card p-0 shadow-2xl",
           className,
         )}
       >

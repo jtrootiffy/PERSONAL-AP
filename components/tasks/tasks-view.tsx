@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import {
   CalendarDays,
   Check,
@@ -97,6 +98,7 @@ export function TasksView({
   initialTaskId?: string;
 }) {
   const toast = useToast();
+  const router = useRouter();
   const [view, setView] = React.useState<"list" | "board" | "calendar">(initialView);
   const [query, setQuery] = React.useState("");
   const [status, setStatus] = React.useState(initialStatus ?? "");
@@ -111,6 +113,9 @@ export function TasksView({
   const [detail, setDetail] = React.useState<TaskRow | null>(null);
   const [deleting, setDeleting] = React.useState<TaskRow | null>(null);
   const [busy, setBusy] = React.useState(false);
+  // Optimistic status so toggles and drag-and-drop respond instantly on the
+  // first click instead of waiting for the server round-trip.
+  const [optimisticStatus, setOptimisticStatus] = React.useState<Record<string, TaskStatus>>({});
 
   React.useEffect(() => {
     if (!initialTaskId) return;
@@ -118,9 +123,16 @@ export function TasksView({
     if (t) setDetail(t);
   }, [initialTaskId, tasks]);
 
+  // Once fresh rows arrive from the server, drop any optimistic overrides.
+  React.useEffect(() => {
+    setOptimisticStatus({});
+  }, [tasks]);
+
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
-    let rows = tasks.slice();
+    let rows = tasks.map((t) =>
+      optimisticStatus[t.id] ? { ...t, status: optimisticStatus[t.id] } : t,
+    );
     if (status) rows = rows.filter((t) => t.status === status);
     if (priority) rows = rows.filter((t) => t.priority === priority);
     if (projectId) rows = rows.filter((t) => t.project_id === projectId);
@@ -147,7 +159,7 @@ export function TasksView({
       return a.due_date.localeCompare(b.due_date);
     });
     return rows;
-  }, [tasks, query, status, priority, projectId, smart, sort]);
+  }, [tasks, query, status, priority, projectId, smart, sort, optimisticStatus]);
 
   React.useEffect(() => setPage(1), [query, status, priority, projectId, smart, sort]);
 
@@ -161,19 +173,33 @@ export function TasksView({
   const [newDefaults, setNewDefaults] = React.useState<{ projectId?: string; dueDate?: string }>({});
 
   async function toggleComplete(t: TaskRow) {
-    const next = t.status === "completed" ? "todo" : "completed";
+    // Base the next state on what is currently on screen (optimistic or fresh)
+    // so rapid re-clicks toggle correctly instead of double-submitting.
+    const current = optimisticStatus[t.id] ?? t.status;
+    const next = current === "completed" ? "todo" : "completed";
+    setOptimisticStatus((prev) => ({ ...prev, [t.id]: next as TaskStatus }));
     const res = await setTaskStatus(t.id, next as TaskStatus);
     if (res.ok) {
       if (next === "completed") toast.success("Task completed");
+      router.refresh();
     } else {
+      setOptimisticStatus((prev) => {
+        const cp = { ...prev };
+        delete cp[t.id];
+        return cp;
+      });
       toast.error("Could not update task", res.error);
     }
   }
 
   async function onDuplicate(t: TaskRow) {
     const res = await duplicateTask(t.id);
-    if (res.ok) toast.success("Task duplicated");
-    else toast.error("Could not duplicate", res.error);
+    if (res.ok) {
+      toast.success("Task duplicated");
+      router.refresh();
+    } else {
+      toast.error("Could not duplicate", res.error);
+    }
   }
 
   async function confirmDelete() {
@@ -185,17 +211,36 @@ export function TasksView({
       toast.success("Task deleted");
       setDeleting(null);
       setDetail(null);
+      router.refresh();
     } else {
       toast.error("Could not delete task", res.error);
     }
   }
 
   async function onDrop(status: TaskStatus, id: string) {
+    // Move the card instantly, then sync with the server.
+    setOptimisticStatus((prev) => ({ ...prev, [id]: status }));
     const res = await moveTask(id, status, Date.now() % 100000);
-    if (!res.ok) toast.error("Could not move task", res.error);
+    if (!res.ok) {
+      setOptimisticStatus((prev) => {
+        const cp = { ...prev };
+        delete cp[id];
+        return cp;
+      });
+      toast.error("Could not move task", res.error);
+    } else {
+      router.refresh();
+    }
   }
 
   const hasFilters = Boolean(query || status || priority || projectId || smart);
+
+  // Keep the detail modal in sync with fresh server rows (e.g. subtask changes
+  // after router.refresh) instead of a frozen snapshot.
+  const liveDetail = React.useMemo(
+    () => (detail ? tasks.find((t) => t.id === detail.id) ?? detail : null),
+    [detail, tasks],
+  );
 
   const actionsMenu = (t: TaskRow) => (
     <DropdownMenu>
@@ -336,7 +381,7 @@ export function TasksView({
       />
 
       <TaskDetailModal
-        task={detail}
+        task={liveDetail}
         onClose={() => setDetail(null)}
         onEdit={(t) => {
           setDetail(null);

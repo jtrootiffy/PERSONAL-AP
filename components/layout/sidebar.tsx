@@ -131,11 +131,11 @@ export function Sidebar({
       {mobileOpen && (
         <div className="no-print fixed inset-0 z-[80] lg:hidden">
           <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="absolute inset-0 animate-fade-in bg-black/50 backdrop-blur-sm"
             onClick={onCloseMobile}
             aria-hidden
           />
-          <aside className="absolute left-0 top-0 flex h-full w-64 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground animate-fade-in">
+          <aside className="absolute left-0 top-0 flex h-full w-64 animate-slide-in-left flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
             <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-4">
               <span className="truncate text-sm font-semibold">{brandName}</span>
               <button
