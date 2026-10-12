@@ -2,7 +2,10 @@
 
 import * as React from "react";
 import { createPortal } from "react-dom";
-import { cn } from "@/lib/utils";
+import { cn, exitDelay } from "@/lib/utils";
+
+/** Must match the `slide-out-up` animation duration in tailwind.config. */
+const EXIT_MS = 130;
 
 interface Ctx {
   open: boolean;
@@ -79,11 +82,32 @@ export function DropdownMenuContent({
 }) {
   const ctx = React.useContext(DropdownCtx)!;
   const contentRef = React.useRef<HTMLDivElement | null>(null);
+  const hasRendered = React.useRef(false);
+  const [rendered, setRendered] = React.useState(ctx.open);
+  const [closing, setClosing] = React.useState(false);
   const [pos, setPos] = React.useState<{
     top: number;
     left: number;
     maxHeight: number;
   } | null>(null);
+
+  // Keep the menu mounted through its exit animation.
+  React.useEffect(() => {
+    if (ctx.open) {
+      hasRendered.current = true;
+      setRendered(true);
+      setClosing(false);
+      return;
+    }
+    if (!hasRendered.current) return;
+    setClosing(true);
+    const t = setTimeout(() => {
+      setClosing(false);
+      setRendered(false);
+      hasRendered.current = false;
+    }, exitDelay(EXIT_MS));
+    return () => clearTimeout(t);
+  }, [ctx.open]);
 
   // Position the menu once it is mounted and keep it glued to the trigger
   // while scrolling (capture phase catches scrolls of any ancestor, including
@@ -137,7 +161,7 @@ export function DropdownMenuContent({
     };
   }, [ctx.open]);
 
-  if (!ctx.open) return null;
+  if (!rendered) return null;
   if (typeof document === "undefined") return null;
 
   return createPortal(
@@ -150,7 +174,10 @@ export function DropdownMenuContent({
           : { position: "fixed", top: -9999, left: -9999 }
       }
       className={cn(
-        "z-50 min-w-[11rem] overflow-hidden rounded-2xl border border-border/70 bg-popover p-1.5 text-popover-foreground shadow-soft-lg animate-slide-in-down",
+        "z-50 min-w-[11rem] overflow-hidden rounded-2xl border border-border/70 bg-popover p-1.5 text-popover-foreground shadow-soft-lg",
+        closing
+          ? "pointer-events-none animate-slide-out-up"
+          : "animate-slide-in-down",
         className,
       )}
     >

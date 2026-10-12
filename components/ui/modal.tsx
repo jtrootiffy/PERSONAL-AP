@@ -2,8 +2,11 @@
 
 import * as React from "react";
 import { createPortal } from "react-dom";
-import { cn } from "@/lib/utils";
+import { cn, exitDelay } from "@/lib/utils";
 import { X } from "lucide-react";
+
+/** Must match the `zoom-out` / `fade-out` animation duration in tailwind.config. */
+const EXIT_MS = 160;
 
 interface ModalProps {
   open: boolean;
@@ -22,10 +25,32 @@ export function Modal({
   dismissable = true,
 }: ModalProps) {
   const [mounted, setMounted] = React.useState(false);
+  const [rendered, setRendered] = React.useState(open);
+  const [closing, setClosing] = React.useState(false);
+  const hasRendered = React.useRef(false);
   React.useEffect(() => setMounted(true), []);
 
+  // Keep the panel mounted through its exit animation.
   React.useEffect(() => {
-    if (!open) return;
+    if (open) {
+      hasRendered.current = true;
+      setRendered(true);
+      setClosing(false);
+      return;
+    }
+    if (!hasRendered.current) return;
+    setClosing(true);
+    const t = setTimeout(() => {
+      setClosing(false);
+      setRendered(false);
+      hasRendered.current = false;
+    }, exitDelay(EXIT_MS));
+    return () => clearTimeout(t);
+  }, [open]);
+
+  // Lock scroll + handle Escape while the dialog is on screen (including exit).
+  React.useEffect(() => {
+    if (!rendered) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape" && dismissable) onClose();
     };
@@ -36,14 +61,17 @@ export function Modal({
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
     };
-  }, [open, onClose, dismissable]);
+  }, [rendered, onClose, dismissable]);
 
-  if (!mounted || !open) return null;
+  if (!mounted || !rendered) return null;
 
   return createPortal(
     <div className="fixed inset-0 z-[90] flex items-start justify-center overflow-y-auto p-4 sm:items-center">
       <div
-        className="fixed inset-0 animate-fade-in bg-slate-950/40 backdrop-blur-sm"
+        className={cn(
+          "fixed inset-0 bg-slate-950/40 backdrop-blur-sm",
+          closing ? "animate-fade-out" : "animate-fade-in",
+        )}
         onClick={dismissable ? onClose : undefined}
         aria-hidden
       />
@@ -51,7 +79,8 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         className={cn(
-          "relative z-10 my-8 w-full max-w-lg animate-zoom-in rounded-card border border-border/70 bg-card p-0 shadow-soft-lg",
+          "relative z-10 my-8 w-full max-w-lg rounded-card border border-border/70 bg-card p-0 shadow-soft-lg",
+          closing ? "pointer-events-none animate-zoom-out" : "animate-zoom-in",
           className,
         )}
       >

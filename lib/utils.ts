@@ -63,3 +63,14 @@ export function toCsv(rows: Record<string, unknown>[], headers?: string[]): stri
 export function tempId() {
   return `tmp_${Math.random().toString(36).slice(2, 10)}`;
 }
+
+/**
+ * Duration to wait for a CSS exit animation before unmounting.
+ * Returns 0 when the user prefers reduced motion, so the element disappears
+ * immediately instead of lingering while an (already collapsed) animation
+ * "plays".
+ */
+export function exitDelay(ms: number) {
+  if (typeof window === "undefined" || !window.matchMedia) return ms;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : ms;
+}
