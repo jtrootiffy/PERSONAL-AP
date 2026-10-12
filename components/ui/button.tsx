@@ -15,16 +15,16 @@ type Size = "sm" | "md" | "lg" | "icon" | "icon-sm";
 
 const variants: Record<Variant, string> = {
   default:
-    "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 focus-visible:ring-primary",
+    "bg-gradient-to-br from-primary to-gradient-end text-primary-foreground shadow-sm hover:shadow-glow hover:brightness-[1.04] focus-visible:ring-primary/60",
   secondary:
-    "bg-secondary text-secondary-foreground hover:bg-secondary/80 focus-visible:ring-ring",
+    "bg-secondary text-secondary-foreground hover:bg-secondary/70 focus-visible:ring-ring",
   outline:
-    "border border-input bg-background hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring",
+    "border border-border bg-card text-foreground shadow-sm hover:border-primary/30 hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring",
   ghost: "hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring",
   destructive:
-    "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 focus-visible:ring-destructive",
+    "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 hover:shadow-md focus-visible:ring-destructive/60",
   success:
-    "bg-success text-success-foreground shadow-sm hover:bg-success/90 focus-visible:ring-success",
+    "bg-success text-success-foreground shadow-sm hover:bg-success/90 focus-visible:ring-success/60",
   link: "text-primary underline-offset-4 hover:underline",
 };
 
@@ -46,8 +46,8 @@ export function buttonVariants({
   className?: string;
 } = {}) {
   return cn(
-    "inline-flex items-center justify-center whitespace-nowrap rounded-lg font-medium transition motion-safe:active:scale-[0.97]",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-background",
+    "inline-flex select-none items-center justify-center whitespace-nowrap rounded-xl font-medium transition-all duration-200 ease-smooth motion-safe:active:scale-[0.97]",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
     "disabled:pointer-events-none disabled:opacity-50",
     variants[variant],
     sizes[size],

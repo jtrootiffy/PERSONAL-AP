@@ -18,7 +18,7 @@ export function StatCard({
   tone?: "default" | "success" | "warning" | "danger" | "primary";
 }) {
   const toneRing = {
-    default: "text-muted-foreground bg-muted",
+    default: "bg-muted text-muted-foreground",
     success: "text-success bg-success/10",
     warning: "text-warning bg-warning/10",
     danger: "text-destructive bg-destructive/10",
@@ -28,9 +28,14 @@ export function StatCard({
   return (
     <Link
       href={href}
-      className="group flex items-center gap-4 rounded-xl border bg-card p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
+      className="group flex items-center gap-4 rounded-card border border-border/70 bg-card p-4 shadow-soft transition-all duration-200 ease-smooth hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-soft-lg"
     >
-      <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-lg", toneRing)}>
+      <span
+        className={cn(
+          "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl transition-transform duration-200 group-hover:scale-105",
+          toneRing,
+        )}
+      >
         <Icon className="h-5 w-5" />
       </span>
       <div className="min-w-0">

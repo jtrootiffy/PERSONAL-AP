@@ -14,7 +14,7 @@ export function Progress({
 }) {
   const pct = clamp(Math.round(value), 0, 100);
   const toneClass = {
-    primary: "bg-primary",
+    primary: "bg-gradient-to-r from-primary to-gradient-end",
     success: "bg-success",
     warning: "bg-warning",
     danger: "bg-destructive",

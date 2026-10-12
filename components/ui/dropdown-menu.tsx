@@ -150,7 +150,7 @@ export function DropdownMenuContent({
           : { position: "fixed", top: -9999, left: -9999 }
       }
       className={cn(
-        "z-50 min-w-[11rem] overflow-hidden rounded-xl border bg-popover p-1 text-popover-foreground shadow-lg animate-slide-in-down",
+        "z-50 min-w-[11rem] overflow-hidden rounded-2xl border border-border/70 bg-popover p-1.5 text-popover-foreground shadow-soft-lg animate-slide-in-down",
         className,
       )}
     >
@@ -185,7 +185,7 @@ export function DropdownMenuItem({
         onSelect?.();
       }}
       className={cn(
-        "flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm transition-colors",
+        "flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-sm transition-colors",
         "hover:bg-accent hover:text-accent-foreground",
         "disabled:pointer-events-none disabled:opacity-50",
         destructive && "text-destructive hover:bg-destructive/10 hover:text-destructive",

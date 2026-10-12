@@ -21,13 +21,23 @@ import { PROJECT_STATUS_LABELS } from "@/lib/constants";
 import type { ProjectStatus } from "@/lib/types";
 
 const STATUS_COLORS: Record<string, string> = {
-  planning: "#0ea5e9",
+  planning: "#38bdf8",
   not_started: "#94a3b8",
-  in_progress: "#6366f1",
+  in_progress: "#3478f6",
   on_hold: "#f59e0b",
   completed: "#10b981",
-  cancelled: "#ef4444",
+  cancelled: "#f43f5e",
 };
+
+const TOOLTIP_STYLE = {
+  borderRadius: 14,
+  border: "1px solid hsl(var(--border))",
+  background: "hsl(var(--card))",
+  color: "hsl(var(--card-foreground))",
+  fontSize: 12,
+  boxShadow: "0 12px 32px -12px rgb(16 24 40 / 0.25)",
+  padding: "8px 12px",
+} as const;
 
 export function IncomeChart({
   data,
@@ -41,8 +51,8 @@ export function IncomeChart({
       <ComposedChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
         <defs>
           <linearGradient id="incomeFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#6366f1" stopOpacity={0.35} />
-            <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+            <stop offset="5%" stopColor="#3478f6" stopOpacity={0.32} />
+            <stop offset="95%" stopColor="#3935f5" stopOpacity={0} />
           </linearGradient>
         </defs>
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
@@ -62,13 +72,8 @@ export function IncomeChart({
           tickFormatter={(v) => formatCurrency(v, currency, { compact: true })}
         />
         <Tooltip
-          contentStyle={{
-            borderRadius: 12,
-            border: "1px solid hsl(var(--border))",
-            background: "hsl(var(--card))",
-            color: "hsl(var(--card-foreground))",
-            fontSize: 12,
-          }}
+          contentStyle={TOOLTIP_STYLE}
+          cursor={{ fill: "hsl(var(--accent) / 0.5)" }}
           formatter={(value: number, name) => [
             formatCurrency(value, currency),
             name === "income" ? "Income received" : "Invoiced",
@@ -78,15 +83,15 @@ export function IncomeChart({
           formatter={(value) => (value === "income" ? "Income received" : "Invoiced")}
           wrapperStyle={{ fontSize: 12 }}
         />
-        <Bar dataKey="invoiced" fill="#c7d2fe" radius={[4, 4, 0, 0]} barSize={22} />
+        <Bar dataKey="invoiced" fill="#dbe4ff" radius={[6, 6, 0, 0]} barSize={22} />
         <Area
           type="monotone"
           dataKey="income"
-          stroke="#6366f1"
+          stroke="#3478f6"
           strokeWidth={2.5}
           fill="url(#incomeFill)"
         />
-        <Line type="monotone" dataKey="income" stroke="#6366f1" strokeWidth={0} dot={false} />
+        <Line type="monotone" dataKey="income" stroke="#3478f6" strokeWidth={0} dot={false} />
       </ComposedChart>
     </ResponsiveContainer>
   );
@@ -128,13 +133,7 @@ export function ProjectStatusChart({
           ))}
         </Pie>
         <Tooltip
-          contentStyle={{
-            borderRadius: 12,
-            border: "1px solid hsl(var(--border))",
-            background: "hsl(var(--card))",
-            color: "hsl(var(--card-foreground))",
-            fontSize: 12,
-          }}
+          contentStyle={TOOLTIP_STYLE}
         />
         <Legend wrapperStyle={{ fontSize: 12 }} />
       </PieChart>
@@ -152,8 +151,8 @@ export function TaskProgressRing({
   total: number;
 }) {
   const data = [
-    { name: "Completed", value: completed, color: "#10b981" },
-    { name: "Remaining", value: Math.max(total - completed, 0), color: "#e2e8f0" },
+    { name: "Completed", value: completed, color: "#3478f6" },
+    { name: "Remaining", value: Math.max(total - completed, 0), color: "hsl(var(--muted))" },
   ];
   return (
     <div className="relative">

@@ -22,7 +22,7 @@ const typeDot: Record<string, string> = {
   deadline: "bg-amber-500",
   overdue: "bg-rose-500",
   payment: "bg-emerald-500",
-  project: "bg-indigo-500",
+  project: "bg-primary",
   system: "bg-slate-400",
 };
 

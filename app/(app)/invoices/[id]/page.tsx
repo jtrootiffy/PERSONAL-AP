@@ -135,7 +135,7 @@ export default async function InvoiceDetailPage({
           </div>
 
           {client && (client.billing_address || client.contact_person) && (
-            <div className="rounded-lg border bg-muted/30 p-4 text-sm">
+            <div className="rounded-xl border border-border/60 bg-muted/40 p-4 text-sm">
               <p className="text-xs font-medium text-muted-foreground">Bill to</p>
               {client.contact_person && <p className="mt-1 font-medium">{client.contact_person}</p>}
               <p className="whitespace-pre-line text-muted-foreground">
@@ -206,13 +206,13 @@ export default async function InvoiceDetailPage({
           {(invoice.notes || invoice.terms) && (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {invoice.notes && (
-                <div className="rounded-lg border bg-muted/30 p-4 text-sm">
+                <div className="rounded-xl border border-border/60 bg-muted/40 p-4 text-sm">
                   <p className="text-xs font-medium text-muted-foreground">Notes</p>
                   <p className="mt-1 whitespace-pre-wrap">{invoice.notes}</p>
                 </div>
               )}
               {invoice.terms && (
-                <div className="rounded-lg border bg-muted/30 p-4 text-sm">
+                <div className="rounded-xl border border-border/60 bg-muted/40 p-4 text-sm">
                   <p className="text-xs font-medium text-muted-foreground">Terms</p>
                   <p className="mt-1 whitespace-pre-wrap">{invoice.terms}</p>
                 </div>

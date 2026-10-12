@@ -43,12 +43,12 @@ import { round2 } from "@/lib/utils";
 import type { Expense, Invoice, Payment, Project } from "@/lib/types";
 
 const CATEGORY_COLORS = [
-  "#6366f1",
+  "#3478f6",
+  "#8b5cf6",
   "#0ea5e9",
   "#10b981",
   "#f59e0b",
-  "#ef4444",
-  "#a855f7",
+  "#f43f5e",
   "#64748b",
   "#ec4899",
   "#14b8a6",
@@ -314,18 +314,20 @@ export function ReportsView({
                 />
                 <Tooltip
                   contentStyle={{
-                    borderRadius: 12,
+                    borderRadius: 14,
                     border: "1px solid hsl(var(--border))",
                     background: "hsl(var(--card))",
                     color: "hsl(var(--card-foreground))",
                     fontSize: 12,
+                    boxShadow: "0 12px 32px -12px rgb(16 24 40 / 0.25)",
+                    padding: "8px 12px",
                   }}
                   formatter={(value: number, name) => [formatCurrency(value, currency), name]}
                 />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Bar dataKey="income" name="Income" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={16} />
-                <Bar dataKey="expenses" name="Expenses" fill="#ef4444" radius={[4, 4, 0, 0]} barSize={16} />
-                <Line type="monotone" dataKey="invoiced" name="Invoiced" stroke="#0ea5e9" strokeWidth={2} dot={false} />
+                <Bar dataKey="income" name="Income" fill="#3478f6" radius={[6, 6, 0, 0]} barSize={16} />
+                <Bar dataKey="expenses" name="Expenses" fill="#f43f5e" radius={[6, 6, 0, 0]} barSize={16} />
+                <Line type="monotone" dataKey="invoiced" name="Invoiced" stroke="#8b5cf6" strokeWidth={2} dot={false} />
               </ComposedChart>
             </ResponsiveContainer>
           )}
@@ -420,11 +422,13 @@ export function ReportsView({
                   </Pie>
                   <Tooltip
                     contentStyle={{
-                      borderRadius: 12,
+                      borderRadius: 14,
                       border: "1px solid hsl(var(--border))",
                       background: "hsl(var(--card))",
                       color: "hsl(var(--card-foreground))",
                       fontSize: 12,
+                      boxShadow: "0 12px 32px -12px rgb(16 24 40 / 0.25)",
+                      padding: "8px 12px",
                     }}
                     formatter={(value: number) => formatCurrency(value, currency)}
                   />

@@ -301,7 +301,7 @@ export function CalendarView({
       </div>
 
       {view === "month" && (
-        <div className="overflow-hidden rounded-xl border bg-card">
+        <div className="overflow-hidden rounded-card border border-border/70 bg-card shadow-soft">
           <div className="overflow-x-auto">
             <div className="min-w-[640px]">
               <div className="grid grid-cols-7 border-b bg-muted/40">
@@ -330,7 +330,7 @@ export function CalendarView({
           {weekDays.map((day) => (
             <div
               key={day.toISOString()}
-              className="flex min-h-[8rem] flex-col rounded-xl border bg-card"
+              className="flex min-h-[8rem] flex-col rounded-2xl border border-border/70 bg-card shadow-soft"
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => {
                 e.preventDefault();
@@ -367,7 +367,7 @@ export function CalendarView({
       )}
 
       {view === "day" && (
-        <div className="rounded-xl border bg-card">
+        <div className="rounded-card border border-border/70 bg-card shadow-soft">
           <button
             type="button"
             onClick={() => openCreate(cursor)}

@@ -9,16 +9,16 @@ export default function Loading() {
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
         {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-[76px] rounded-xl" />
+          <Skeleton key={i} className="h-[76px] rounded-card" />
         ))}
       </div>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <Skeleton className="h-80 rounded-xl lg:col-span-2" />
-        <Skeleton className="h-80 rounded-xl" />
+        <Skeleton className="h-80 rounded-card lg:col-span-2" />
+        <Skeleton className="h-80 rounded-card" />
       </div>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Skeleton className="h-56 rounded-xl" />
-        <Skeleton className="h-56 rounded-xl" />
+        <Skeleton className="h-56 rounded-card" />
+        <Skeleton className="h-56 rounded-card" />
       </div>
     </div>
   );

@@ -24,6 +24,7 @@ const config: Config = {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
         },
+        "gradient-end": "hsl(var(--gradient-end))",
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
@@ -68,6 +69,18 @@ const config: Config = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        card: "1.25rem",
+      },
+      boxShadow: {
+        // Soft, layered neumorphic shadows: subtle lift, restrained blur.
+        soft: "0 1px 2px 0 rgb(16 24 40 / 0.04), 0 9px 24px -14px rgb(16 24 40 / 0.14)",
+        "soft-lg":
+          "0 2px 6px -2px rgb(16 24 40 / 0.06), 0 20px 44px -20px rgb(16 24 40 / 0.22)",
+        glow: "0 10px 28px -10px hsl(var(--primary) / 0.55)",
+        "inner-soft": "inset 0 1px 0 0 rgb(255 255 255 / 0.55)",
+      },
+      transitionTimingFunction: {
+        smooth: "cubic-bezier(0.22, 1, 0.36, 1)",
       },
       fontFamily: {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],

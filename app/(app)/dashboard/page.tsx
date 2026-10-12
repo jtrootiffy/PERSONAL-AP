@@ -338,7 +338,7 @@ export default async function DashboardPage() {
                 <Link
                   key={p.id}
                   href={`/projects/${p.id}`}
-                  className="block rounded-lg border p-3 transition-colors hover:bg-muted/50"
+                  className="block rounded-xl border border-border/70 bg-muted/20 p-3 transition-colors hover:border-primary/30 hover:bg-accent/40"
                 >
                   <div className="flex items-center justify-between gap-3">
                     <span className="truncate text-sm font-medium">{p.title}</span>

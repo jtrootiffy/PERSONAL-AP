@@ -60,13 +60,16 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       <div
         role="status"
         aria-live="polite"
-        className="pointer-events-none fixed bottom-4 right-4 z-[100] flex w-full max-w-sm flex-col gap-2"
+        className="pointer-events-none fixed bottom-4 right-4 z-[100] flex w-[calc(100%-2rem)] max-w-sm flex-col gap-2"
       >
         {toasts.map((t) => (
           <div
             key={t.id}
             className={cn(
-              "pointer-events-auto flex items-start gap-3 rounded-xl border bg-card p-3.5 shadow-lg animate-slide-in",
+              "pointer-events-auto flex items-start gap-3 rounded-2xl border border-border/70 bg-card/95 p-3.5 shadow-soft-lg backdrop-blur animate-slide-in",
+              t.variant === "success" && "border-l-4 border-l-success",
+              t.variant === "error" && "border-l-4 border-l-destructive",
+              t.variant === "info" && "border-l-4 border-l-primary",
             )}
           >
             <span className="mt-0.5">
@@ -79,14 +82,14 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               {t.variant === "info" && <Info className="h-5 w-5 text-primary" />}
             </span>
             <div className="flex-1">
-              <p className="text-sm font-medium">{t.title}</p>
+              <p className="text-sm font-semibold">{t.title}</p>
               {t.description && (
                 <p className="mt-0.5 text-xs text-muted-foreground">{t.description}</p>
               )}
             </div>
             <button
               onClick={() => remove(t.id)}
-              className="rounded-md p-0.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               aria-label="Dismiss"
             >
               <X className="h-4 w-4" />

@@ -9,7 +9,12 @@ export function TableWrap({
   children: React.ReactNode;
 }) {
   return (
-    <div className={cn("w-full overflow-x-auto rounded-xl border bg-card", className)}>
+    <div
+      className={cn(
+        "w-full overflow-x-auto rounded-card border border-border/70 bg-card shadow-soft",
+        className,
+      )}
+    >
       {children}
     </div>
   );
@@ -48,7 +53,7 @@ export function TableRow({
   return (
     <tr
       className={cn(
-        "border-b transition-colors hover:bg-muted/40 data-[state=selected]:bg-muted",
+        "border-b border-border/60 transition-colors duration-150 hover:bg-accent/40 data-[state=selected]:bg-accent/60",
         className,
       )}
       {...props}
@@ -63,7 +68,7 @@ export function TableHead({
   return (
     <th
       className={cn(
-        "h-10 whitespace-nowrap px-4 text-left align-middle text-xs font-semibold uppercase tracking-wide text-muted-foreground",
+        "h-11 whitespace-nowrap bg-muted/40 px-4 text-left align-middle text-[11px] font-semibold uppercase tracking-wider text-muted-foreground",
         className,
       )}
       {...props}
@@ -75,5 +80,5 @@ export function TableCell({
   className,
   ...props
 }: React.TdHTMLAttributes<HTMLTableCellElement>) {
-  return <td className={cn("px-4 py-3 align-middle", className)} {...props} />;
+  return <td className={cn("px-4 py-3.5 align-middle", className)} {...props} />;
 }

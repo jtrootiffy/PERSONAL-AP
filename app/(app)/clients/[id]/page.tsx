@@ -278,7 +278,7 @@ export default async function ClientDetailPage({
             ) : (
               <ul className="space-y-3">
                 {notes.map((n) => (
-                  <li key={n.id} className="rounded-lg border p-3">
+                  <li key={n.id} className="rounded-xl border border-border/60 bg-muted/20 p-3">
                     <p className="flex items-center gap-2 text-sm font-medium">
                       <StickyNote className="h-4 w-4 text-muted-foreground" />
                       {n.title || "Untitled note"}

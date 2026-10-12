@@ -444,7 +444,7 @@ function ListView({
     );
   }
   return (
-    <div className="overflow-hidden rounded-xl border bg-card">
+    <div className="overflow-hidden rounded-card border border-border/70 bg-card shadow-soft">
       <ul className="divide-y">
         {tasks.map((t) => {
           const overdue = isTaskOverdue(t);
@@ -535,7 +535,7 @@ function BoardView({
               if (id) onDrop(col, id);
             }}
             className={cn(
-              "flex min-h-[140px] flex-col rounded-xl border bg-muted/30 p-2",
+              "flex min-h-[140px] flex-col rounded-2xl border border-border/60 bg-muted/40 p-2",
               dragOver === col && "border-primary bg-primary/5",
             )}
           >

@@ -51,7 +51,7 @@ export function AppShell({
   const brandName = settings?.business_name?.trim() || profile?.full_name || "Admin Panel";
 
   return (
-    <div className="flex min-h-screen bg-muted/30">
+    <div className="flex min-h-screen bg-background">
       <Sidebar
         collapsed={collapsed}
         onToggleCollapse={toggleCollapse}
@@ -67,7 +67,7 @@ export function AppShell({
           onOpenSearch={() => setSearchOpen(true)}
           onOpenMobile={() => setMobileOpen(true)}
         />
-        <main className="mx-auto w-full max-w-[1400px] flex-1 animate-fade-in px-4 py-6 sm:px-6 lg:px-8">
+        <main className="mx-auto w-full max-w-[1400px] flex-1 animate-fade-in px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
           {children}
         </main>
       </div>
