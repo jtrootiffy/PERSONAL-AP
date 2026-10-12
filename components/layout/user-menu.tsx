@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ChevronsUpDown, LogOut, Settings as SettingsIcon, User } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import {
@@ -22,6 +22,7 @@ export function UserMenu({
   email: string | null;
   profile: Profile | null;
 }) {
+  const router = useRouter();
   const [pending, setPending] = React.useState(false);
   const name = profile?.full_name || email || "Account";
 
@@ -46,16 +47,12 @@ export function UserMenu({
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <Link href="/settings">
-          <DropdownMenuItem>
-            <User className="h-4 w-4" /> Profile
-          </DropdownMenuItem>
-        </Link>
-        <Link href="/settings">
-          <DropdownMenuItem>
-            <SettingsIcon className="h-4 w-4" /> Settings
-          </DropdownMenuItem>
-        </Link>
+        <DropdownMenuItem onSelect={() => router.push("/settings")}>
+          <User className="h-4 w-4" /> Profile
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => router.push("/settings")}>
+          <SettingsIcon className="h-4 w-4" /> Settings
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           destructive
