@@ -1,14 +1,22 @@
 "use client";
 
 import * as React from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 
 interface Ctx {
   open: boolean;
-  setOpen: (v: boolean) => void;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  triggerRef: { current: HTMLElement | null };
 }
 const DropdownCtx = React.createContext<Ctx | null>(null);
 
+/**
+ * Simple dropdown menu. The content is rendered through a portal to
+ * document.body and positioned from the trigger's screen coordinates, so it
+ * is never clipped by an ancestor `overflow` (e.g. the overflow-x-auto tables
+ * used on the invoices/expenses pages) and always stays inside the viewport.
+ */
 export function DropdownMenu({
   children,
   className,
@@ -17,27 +25,11 @@ export function DropdownMenu({
   className?: string;
 }) {
   const [open, setOpen] = React.useState(false);
-  const ref = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    if (!open) return;
-    const onDown = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
-    document.addEventListener("mousedown", onDown);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDown);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
+  const triggerRef = React.useRef<HTMLElement | null>(null);
 
   return (
-    <DropdownCtx.Provider value={{ open, setOpen }}>
-      <div ref={ref} className={cn("relative inline-block text-left", className)}>
-        {children}
-      </div>
+    <DropdownCtx.Provider value={{ open, setOpen, triggerRef }}>
+      <div className={cn("inline-block text-left", className)}>{children}</div>
     </DropdownCtx.Provider>
   );
 }
@@ -50,18 +42,27 @@ export function DropdownMenuTrigger({
   asChild?: boolean;
 }) {
   const ctx = React.useContext(DropdownCtx)!;
-  const onClick = (e: React.MouseEvent) => {
+  const onClick = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    ctx.setOpen(!ctx.open);
+    // Capture the actual DOM node (works for asChild children too) so the
+    // portal content can be positioned from its bounding rect.
+    ctx.triggerRef.current = e.currentTarget;
+    ctx.setOpen((v) => !v);
+  };
+  const triggerProps = {
+    onClick,
+    "aria-haspopup": "menu" as const,
+    "aria-expanded": ctx.open,
   };
   if (asChild && React.isValidElement(children)) {
-    return React.cloneElement(children as React.ReactElement<{ onClick?: (e: React.MouseEvent) => void }>, {
-      onClick,
-    });
+    return React.cloneElement(
+      children as React.ReactElement<Record<string, unknown>>,
+      triggerProps,
+    );
   }
   return (
-    <button type="button" onClick={onClick}>
+    <button type="button" {...triggerProps}>
       {children}
     </button>
   );
@@ -77,18 +78,85 @@ export function DropdownMenuContent({
   className?: string;
 }) {
   const ctx = React.useContext(DropdownCtx)!;
+  const contentRef = React.useRef<HTMLDivElement | null>(null);
+  const [pos, setPos] = React.useState<{
+    top: number;
+    left: number;
+    maxHeight: number;
+  } | null>(null);
+
+  // Position the menu once it is mounted and keep it glued to the trigger
+  // while scrolling (capture phase catches scrolls of any ancestor, including
+  // the tables' own overflow-x-auto) or resizing.
+  React.useLayoutEffect(() => {
+    if (!ctx.open) return;
+    const el = contentRef.current;
+    const trigger = ctx.triggerRef.current;
+    if (!el || !trigger) return;
+
+    const place = () => {
+      const r = trigger.getBoundingClientRect();
+      const width = el.offsetWidth || 200;
+      const height = el.offsetHeight || 0;
+      const margin = 4;
+      const spaceBelow = window.innerHeight - r.bottom - margin;
+      const spaceAbove = r.top - margin;
+      const openUp = spaceBelow < height + margin && spaceAbove > spaceBelow;
+      const top = openUp ? Math.max(8, r.top - height - margin) : r.bottom + margin;
+      let left = align === "end" ? r.right - width : r.left;
+      left = Math.max(8, Math.min(left, Math.max(8, window.innerWidth - width - 8)));
+      setPos({ top, left, maxHeight: Math.max(spaceBelow, spaceAbove) - 8 });
+    };
+
+    place();
+    window.addEventListener("scroll", place, true);
+    window.addEventListener("resize", place);
+    return () => {
+      window.removeEventListener("scroll", place, true);
+      window.removeEventListener("resize", place);
+    };
+  }, [ctx.open, align]);
+
+  // Close on outside press or Escape.
+  React.useEffect(() => {
+    if (!ctx.open) return;
+    const onDown = (e: PointerEvent) => {
+      const t = e.target as Node;
+      if (contentRef.current?.contains(t)) return;
+      if (ctx.triggerRef.current?.contains(t)) return;
+      ctx.setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") ctx.setOpen(false);
+    };
+    document.addEventListener("pointerdown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [ctx.open]);
+
   if (!ctx.open) return null;
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <div
+      ref={contentRef}
+      role="menu"
+      style={
+        pos
+          ? { position: "fixed", top: pos.top, left: pos.left, maxHeight: pos.maxHeight, overflowY: "auto" }
+          : { position: "fixed", top: -9999, left: -9999 }
+      }
       className={cn(
-        "absolute z-50 mt-1 min-w-[11rem] overflow-hidden rounded-xl border bg-popover p-1 text-popover-foreground shadow-lg animate-slide-in-down",
-        align === "end" ? "right-0" : "left-0",
+        "z-50 min-w-[11rem] overflow-hidden rounded-xl border bg-popover p-1 text-popover-foreground shadow-lg animate-slide-in-down",
         className,
       )}
-      role="menu"
     >
       {children}
-    </div>
+    </div>,
+    document.body,
   );
 }
 
